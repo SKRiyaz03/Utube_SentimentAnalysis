@@ -1,4 +1,2 @@
-env/
-SentimentAnalysis_test
-Test
-Analysis_test
+.env/
+__pycache__/
