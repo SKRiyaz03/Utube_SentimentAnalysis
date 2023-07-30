@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <script>
+      function myFunction() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+      
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+          td = tr[i].getElementsByTagName("td")[1];
+          if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              tr[i].style.display = "";
+            } else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+
+#myInput {
+  /* background-image: url('/css/searchicon.png');  Add a search icon to input */
+  background-position: 10px 12px; /* Position the search icon */
+  background-repeat: no-repeat; /* Do not repeat the icon image */
+  width: 100%; /* Full-width */
+  font-size: 16px; /* Increase font-size */
+  padding: 12px 20px 12px 40px; /* Add some padding */
+  border: 1px solid #ddd; /* Add a grey border */
+  margin-bottom: 12px; /* Add some space below the input */
+}
+
+#myTable {
+  border-collapse: collapse; /* Collapse borders */
+  width: 100%; /* Full-width */
+  border: 1px solid #ddd; /* Add a grey border */
+  font-size: 18px; /* Increase font-size */
+}
+
+#myTable th, #myTable td {
+  text-align: left; /* Left-align text */
+  padding: 12px; /* Add padding */
+}
+
+#myTable tr {
+  /* Add a bottom border to all table rows */
+  border-bottom: 1px solid #ddd;
+}
+
+#myTable tr.header, #myTable tr:hover {
+  /* Add a grey background color to the table header and on hover */
+  background-color: #f1f1f1;
+}
+    </style>
+  </head>
+  <body>
+    <form action="/search" method = "POST">
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-sm">Channel ID</span>
+            <input type="text" name = "ChannelId" id = "ChannelSearch" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+            <button type="submit" class="btn btn-outline-success">Search</button>
+        </div>
+    </form>
+
+    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names..">
+      <table id="myTable">
+        <tr class="header">
+          <th style="width:40%;">Id</th>
+          <th style="width:60%;">Name</th>
+          <th style="width:40%;">Watch</th>
+          <th style="width:40%;">Analyse</th>
+        </tr>
+        {% for video, id in videos %}
+        <tr>
+          <td>{{loop.index}}</td>
+          <td>{{video}}</td>
+          <td><a href="https://www.youtube.com/watch?v={{id}}">Watch</a></td>
+          <td><a href="/anaylse/{{id}}">Analyse</a></td>
+        </tr>
+        {% endfor %}
+      </table>
+  </body>
+</html>
