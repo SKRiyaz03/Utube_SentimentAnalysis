@@ -1,45 +1,46 @@
-from flask import request, jsonify, Flask, render_template,send_file
+from flask import Flask, request, render_template, send_file, session
 from flask_sqlalchemy import SQLAlchemy
-import  API
+import API
 import matplotlib.pyplot as plt
 import os
-IsAnalysed = False
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-# app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
-data_retrieval = API.YouTubeAPI(API_KEY='AIzaSyC3xxbqxbioB1jCH5gpzT-sT0zXsCbMBn4')
-db = SQLAlchemy(app)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = os.urandom(24)  # Generate a random secret key for sessions
 
-# ChannelId = "UC7IMq6lLHbptAnSucW1pClA"
+db = SQLAlchemy(app)
+data_retrieval = API.YouTubeAPI()  # Initialize the YouTubeAPI class
+
 @app.route('/')
-def hello_world():
-    # print("Hello world")
-    return render_template('./index.html')
+def index():
+    return render_template('index.html')
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    global ChannelId
-    print("Search function")
     if request.method == 'POST':
-        ChannelId = request.form['ChannelId']
-        print(ChannelId)
-        videos = data_retrieval.run(ChannelId)
-        return render_template('./index.html', videos = zip(list(videos.keys()), list(videos.values())))
-    return render_template('./index.html')
-@app.route('/anaylse/<videoId>')
-def anaylse(videoId):
-    # print("Hello world")    
-    # print(videoId)
-    # print("videoId", videoId)
-    details = API.Analyse(ChannelId, videoId)
-    score = details[-1]
-    # print(details)
-    plt.pie([score['pos'],score['neg'],score['neu']],labels=['Positive','Negative','Neutral'],autopct='%1.1f%%')
-    plt.title("Sentiment Analysis for:\n " + details[1])
-    plt.savefig('./static/images/Analysis.png')
-    return send_file('static/images/Analysis.png', as_attachment=True)
+        session['channel_id'] = request.form['ChannelId']
+        videos = data_retrieval.get_video_data(session['channel_id'])
+        return render_template('index.html', videos=videos.items())  # Pass video ID and title pairs
+    return render_template('index.html')
+
+
+
+@app.route('/analyse/<video_id>')
+def analyse(video_id):
+    if 'channel_id' not in session:
+        return 'Channel ID not specified', 400
+
+    channel_id = session['channel_id']
+    comments = data_retrieval.get_comments(video_id)
+    sentiment_score = API.analyse_comments(comments)
+
+    plt.pie([sentiment_score['pos'], sentiment_score['neg'], sentiment_score['neu']], labels=['Positive', 'Negative', 'Neutral'], autopct='%1.1f%%')
+    plt.title(f"Sentiment Analysis for Video ID: {video_id}")
+    image_path = os.path.join('static', 'images', 'analysis.png')
+    plt.savefig(image_path)
+    plt.close()
+    return send_file(image_path, as_attachment=True)
+
 if __name__ == "__main__":
     app.run(debug=True)
-
-# Corey Shafer
-# https://www.youtube.com/channel/UCCezIgC97PvUuR4_gbFUs5g

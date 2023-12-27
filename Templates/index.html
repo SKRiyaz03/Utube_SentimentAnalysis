@@ -73,21 +73,22 @@
     </form>
 
     <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names..">
-      <table id="myTable">
-        <tr class="header">
-          <th style="width:40%;">Id</th>
-          <th style="width:60%;">Name</th>
-          <th style="width:40%;">Watch</th>
-          <th style="width:40%;">Analyse</th>
-        </tr>
-        {% for video, id in videos %}
-        <tr>
-          <td>{{loop.index}}</td>
-          <td>{{video}}</td>
-          <td><a href="https://www.youtube.com/watch?v={{id}}">Watch</a></td>
-          <td><a href="/anaylse/{{id}}">Analyse</a></td>
-        </tr>
-        {% endfor %}
-      </table>
+    <table id="myTable">
+      <tr class="header">
+          <th style="width:20%;">#</th>
+          <th style="width:40%;">Name</th>
+          <th style="width:20%;">Watch</th>
+          <th style="width:20%;">Analyse</th>
+      </tr>
+      {% for video_id, video_title in videos %}
+      <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ video_title }}</td>
+          <td><a href="https://www.youtube.com/watch?v={{ video_id }}">Watch</a></td>
+          <td><a href="/analyse/{{ video_id }}">Analyse</a></td>
+      </tr>
+      {% endfor %}
+  </table>
+  
   </body>
 </html>
